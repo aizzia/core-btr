@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+mock_duke_h5/
+*.csv
+artifacts/
+.DS_Store
