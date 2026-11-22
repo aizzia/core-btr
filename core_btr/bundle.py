@@ -135,7 +135,8 @@ class CoreBTRPod:
             lens = SetTransformerLens(in_dim=in_dim, d_model=64, num_heads=4)
             lens.load_state_dict(state)
             verify_hash = freeze_and_verify_lens(
-                lens, torch.randn(4, pod.builder.contract.max_tokens, in_dim), dummy_mask
+                lens, torch.randn(4, pod.builder.contract.max_tokens, in_dim), dummy_mask,
+                legacy_archive_hash=len(pod.lens_hashes[name]) == 16,
             )
             if verify_hash != pod.lens_hashes[name]:
                 raise RuntimeError(

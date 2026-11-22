@@ -1,5 +1,6 @@
 import hashlib
 import io
+import json
 from typing import Optional
 import numpy as np
 import torch
@@ -129,7 +130,8 @@ def derive_view_native_regimes(x_train: np.ndarray, mask_train: np.ndarray) -> n
     return b0 * 4 + b1 * 2 + b2
 
 
-def freeze_and_verify_lens(model: SetTransformerLens, sample_x: torch.Tensor, sample_mask: torch.Tensor) -> str:
+def freeze_and_verify_lens(model: SetTransformerLens, sample_x: torch.Tensor, sample_mask: torch.Tensor,
+                           *, legacy_archive_hash: bool = False) -> str:
     model.eval()
     for p in model.parameters():
         p.requires_grad_(False)
@@ -140,9 +142,21 @@ def freeze_and_verify_lens(model: SetTransformerLens, sample_x: torch.Tensor, sa
     if probe_1 != probe_2:
         raise RuntimeError("FAIL_CLOSED: Lens failed byte-identical determinism probe!")
 
-    buf = io.BytesIO()
-    torch.save({k: v.cpu() for k, v in model.state_dict().items()}, buf)
-    return hashlib.sha256(buf.getvalue()).hexdigest()[:16]
+    if legacy_archive_hash:
+        buf = io.BytesIO()
+        torch.save({k: v.cpu() for k, v in model.state_dict().items()}, buf)
+        return hashlib.sha256(buf.getvalue()).hexdigest()[:16]
+
+    # Hash the weights themselves. Torch archive headers vary across builds.
+    digest = hashlib.sha256(b"core-btr/lens-v1\0")
+    for name, tensor in sorted(model.state_dict().items()):
+        values = tensor.detach().cpu().numpy()
+        values = values.astype(values.dtype.newbyteorder("<"), copy=False)
+        header = json.dumps([name, values.dtype.str, values.shape], separators=(",", ":")).encode()
+        digest.update(len(header).to_bytes(8, "big"))
+        digest.update(header)
+        digest.update(values.tobytes(order="C"))
+    return digest.hexdigest()
 
 
 def train_commissioned_lens(
