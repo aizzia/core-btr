@@ -94,13 +94,17 @@ The loader uses PyTorch deserialization. Only load bundles from trusted sources.
 
 ---
 
-## Licensing (Dual-Licensed)
+---
 
-`core-btr` is source-available and dual-licensed:
+## Licensing & Commercial Terms
 
-1. **Academic, Non-Profit & Personal Research (Free):** Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE) (`PolyForm-Noncommercial-1.0.0`). Educational institutions, universities, public research organizations, and government laboratories may use, modify, and run `core-btr` free of charge.
-2. **Commercial & Enterprise Use (Paid Pod License):** Any use by a for-profit organization—including internal R&D, manufacturing telemetry, financial operations, or production deployment—requires a separate commercial license from **Aizzia**. Open an issue or contact Aizzia via [github.com/aizzia](https://github.com/aizzia) for commercial pilot and air-gapped pod licensing.
+SPDX-License-Identifier: PolyForm-Small-Business-1.0.0
 
-### Commercial & Depository Institution Boundary
+```text
+Required Notice: Copyright 2026 Aizzia (https://tabsense.io)
+```
 
-While accredited universities, non-profit academic quantum centers, and government research laboratories may use `core-btr` free of charge under **PolyForm Noncommercial License 1.0.0**, any use by for-profit enterprises or **chartered financial and depository institutions**—explicitly including commercial banks, savings and loan associations, **federal and state credit unions**, card issuers, and payment processors—constitutes commercial business operations and requires a paid commercial pod license from Aizzia.
+* **Small Business & Indie Use:** Licensed under the unaltered [**PolyForm Small Business License 1.0.0**](./LICENSE) for organizations with fewer than 100 total employees/contractors and less than $1,000,000 USD (2019 CPI-adjusted) annual revenue.
+* **Academic & Public Research Labs:** Accredited universities and government laboratories receive a free supplemental grant for non-commercial scientific research (see [COMMERCIAL.md](./COMMERCIAL.md)).
+* **Enterprise & Financial Institution Licensing:** Organizations exceeding the Small Business headcount or revenue thresholds—including larger enterprises, commercial banks, credit unions, card issuers, and payment processors—must purchase a commercial license from Aizzia. Contact **licensing@aizzia.ai** or see [**COMMERCIAL.md**](./COMMERCIAL.md) for pricing and pilot terms.
+* **Version Scope:** The PolyForm Small Business License 1.0.0 applies prospectively to commits and releases from this transition forward; any prior MIT-licensed commits or releases remain under the MIT License.
