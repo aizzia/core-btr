@@ -1,0 +1,6 @@
+*
+!core_btr/
+!core_btr/*.py
+!server.py
+!LICENSE
+!NOTICE

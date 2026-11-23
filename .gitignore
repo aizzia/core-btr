@@ -5,3 +5,4 @@ mock_duke_h5/
 *.csv
 artifacts/
 .DS_Store
+*.egg-info/

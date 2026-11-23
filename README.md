@@ -13,7 +13,7 @@ Standard text-serialized RAG pipelines flatten multi-row operational histories i
 
 ---
 
-## Verified Benchmark (Apple Silicon CPU, Zero GPU)
+## Original benchmark (Apple Silicon CPU, zero GPU)
 
 | Suite | Bad Tab RAG (`MiniLM` Row-to-Text) | Core BTR Constellation (5–6 Frozen Senses) | Scarcity Gate (`<=3` True Matches) | Outlier Refusal (`0` True Matches) | Live Query Latency |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -21,6 +21,18 @@ Standard text-serialized RAG pipelines flatten multi-row operational histories i
 | `duke_artiq_runs` (295 ARTIQ `.h5` Scans) | 45.0% P@10 | **100.0% P@10** | **4/5** unpadded | **10/10** refused | **3.62 ms** |
 
 ---
+
+The historical BTR percentages above average precision among returned matches per ordinary query (an empty answer scores zero). The CSV scorecard also counts every requested slot, so withholding nine results and returning one correct match earns 1/10. The documented quickstart generates synthetic scans. It does not establish performance on experimental lab data.
+
+On the seed-42 synthetic split, 42 ordinary queries requested ten matches each:
+
+| Method | Correct / requested | Correct / returned | Empty queries |
+|---|---:|---:|---:|
+| Core BTR | 417/420 (99.3%) | 417/417 | 0/42 |
+| Nearest neighbors on pooled input views | 412/420 (98.1%) | 412/420 | 0/42 |
+| MiniLM on serialized rows | 189/420 (45.0%) | 189/420 | 0/42 |
+
+The pooled comparator uses the same fitted, masked input views. It averages each view over valid rows, normalizes it, then ranks by equal-weight similarity, with no trained lenses or refusal cutoff. On the separate scarcity and novel queries, BTR passed 4/5 and 10/10 respectively. These two checks evaluate BTR’s refusal behavior; the table compares ordinary retrieval only.
 
 ## Quickstart
 
@@ -41,11 +53,35 @@ python csv_shootout.py \
   --label-col regime_tag \
   --scarce-label scarce_aom_thermal_droop \
   --novel-label novel_laser_unlock_spike \
+  --evaluation-bundle artifacts/evaluation.pt \
   --export-bundle artifacts/duke_pod.pt
 
 # 3. Serve REST + FastMCP endpoints
 uvicorn server:app --host 127.0.0.1 --port 8000
 ```
+
+Use a fresh directory for the quickstart: the mock generator replaces its own mock_duke_h5 directory. The evaluation bundle contains the 90 indexed entities used for scoring. The demo bundle includes all 283 non-novel entities and is intended for browsing the historical corpus. Use the evaluation bundle for held-out checks. For a fully local comparator pass after installing dependencies, add --skip-text-baseline to skip downloading MiniLM.
+
+### Serve offline
+
+Build once with network access. Mount a trusted, locally generated bundle read-only at runtime. The image contains the server and dependencies; each lab supplies its own index.
+
+```bash
+docker build -t core-btr .
+docker run --rm -p 127.0.0.1:8000:8000 -v "$PWD/artifacts:/app/artifacts:ro" core-btr
+```
+
+To verify historical lookup, a held-out live match and a novel-window refusal through the HTTP application inside a network-isolated container, use the synthetic evaluation bundle generated above:
+
+```bash
+docker run --rm --network none -e PYTHONPATH=/app -e BTR_BUNDLE_PATH=/data/evaluation.pt \
+  -v "$PWD/artifacts/evaluation.pt:/data/evaluation.pt:ro" \
+  -v "$PWD/duke_artiq_runs.csv:/data/input.csv:ro" \
+  -v "$PWD/tests/smoke_mock_pod.py:/tmp/smoke.py:ro" \
+  core-btr python /tmp/smoke.py /data/input.csv
+```
+
+The loader uses PyTorch deserialization. Only load bundles from trusted sources. New lens fingerprints hash tensor names, shapes, types and weight bytes independently of PyTorch's archive format. Existing 16-character fingerprints retain their original validation routine. Fingerprints stored inside the bundle check consistency; authenticating a received bundle requires verifying its provenance separately.
 
 ## Architecture Layout
 
