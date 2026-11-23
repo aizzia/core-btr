@@ -100,3 +100,7 @@ The loader uses PyTorch deserialization. Only load bundles from trusted sources.
 
 1. **Academic, Non-Profit & Personal Research (Free):** Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE) (`PolyForm-Noncommercial-1.0.0`). Educational institutions, universities, public research organizations, and government laboratories may use, modify, and run `core-btr` free of charge.
 2. **Commercial & Enterprise Use (Paid Pod License):** Any use by a for-profit organization—including internal R&D, manufacturing telemetry, financial operations, or production deployment—requires a separate commercial license from **Aizzia**. Open an issue or contact Aizzia via [github.com/aizzia](https://github.com/aizzia) for commercial pilot and air-gapped pod licensing.
+
+### Commercial & Depository Institution Boundary
+
+While accredited universities, non-profit academic quantum centers, and government research laboratories may use `core-btr` free of charge under **PolyForm Noncommercial License 1.0.0**, any use by for-profit enterprises or **chartered financial and depository institutions**—explicitly including commercial banks, savings and loan associations, **federal and state credit unions**, card issuers, and payment processors—constitutes commercial business operations and requires a paid commercial pod license from Aizzia.
